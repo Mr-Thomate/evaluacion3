@@ -83,13 +83,13 @@ public class EmpleadoService {
         try{
             BibliotecaExternoDTO bibliotecaGuardado = webClientBuilder.build()
                 .get()
-                .uri("http://api/v1/MS3/id/" + emp.getBibliotecaId()
+                .uri("http://api/v1/MS3/id/" + emp.getBibliotecaId())
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty()) // importante
                 .bodyToMono(BibliotecaExternoDTO.class)
                 .block();
 
-            dto.setBiblioteca(bibliotecaGuardado););
+            dto.setBiblioteca(bibliotecaGuardado);
         }
         if (emp.getContrato() != null) {
             dto.setEstadoContrato("Con contrato");
