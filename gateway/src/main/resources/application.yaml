@@ -15,60 +15,60 @@ spring:
             - id: clientes-service
               uri: lb://clientes
               predicates:
-                - Path=/api/v1/clientes/**
+                - Path=/api/v1/clientes/**, /clientes/api-docs/**
 
             - id: prestamos-service
               uri: lb://clientes
               predicates:
-                - Path=/api/v1/prestamos/**
+                - Path=/api/v1/prestamos/**, /prestamos/api-docs/**
 
             # Separacion al MS2
 
             - id: empleados-service
               uri: lb://empleados
               predicates:
-                - Path=/api/v1/empleados/**
+                - Path=/api/v1/empleados/**, /empleados/api-docs/**
 
             - id: contratos-service
               uri: lb://empleados
               predicates:
-                - Path=/api/v1/contratos/**
+                - Path=/api/v1/contratos/**, /contratos/api-docs/**
 
             # Separacion al MS3
 
             - id: regiones-service
               uri: lb://bibliotecas
               predicates:
-                - Path=/api/v1/regiones/**
+                - Path=/api/v1/regiones/**, /regiones/api-docs/**
 
             - id: comunas-service
               uri: lb://bibliotecas
               predicates:
-                - Path=/api/v1/comunas/**
+                - Path=/api/v1/comunas/**, /comunas/api-docs/**
 
             - id: bibliotecas-service
               uri: lb://bibliotecas
               predicates:
-                - Path=/api/v1/bibliotecas/**
+                - Path=/api/v1/bibliotecas/**, /bibliotecas/api-docs/**
 
             # Separacion al MS4
 
             - id: libros-service
               uri: lb://libros
               predicates:
-              - Path=/api/v1/libros/**
+              - Path=/api/v1/libros/**, /libros/api-docs/**
 
             - id: categorias-service
               uri: lb://libros
               predicates:  
-              - Path=/api/v1/categorias/**
+              - Path=/api/v1/categorias/**, /categorias/api-docs/**
 
             - id: autores-service
               uri: lb://libros
               predicates:
-              - Path=/api/v1/autores/**
+              - Path=/api/v1/autores/**, /autores/api-docs/**
 
             - id: editoriales-service
               uri: lb://libros
               predicates:
-              - Path=/api/v1/editoriales/**
+              - Path=/api/v1/editoriales/**, /editoriales/api-docs/**
