@@ -10,29 +10,65 @@ spring:
       server:
         webmvc:
           routes:
-            - id: MS1-service
-              uri: http://127.0.0.1:8081
+            # Separacion al MS1
+
+            - id: clientes-service
+              uri: lb://clientes
               predicates:
                 - Path=/api/v1/clientes/**
+
+            - id: prestamos-service
+              uri: lb://clientes
+              predicates:
                 - Path=/api/v1/prestamos/**
 
-            - id: MS2-service
-              uri: http://127.0.0.1:8082
+            # Separacion al MS2
+
+            - id: empleados-service
+              uri: lb://empleados
               predicates:
                 - Path=/api/v1/empleados/**
+
+            - id: contratos-service
+              uri: lb://empleados
+              predicates:
                 - Path=/api/v1/contratos/**
 
-            - id: MS3-service
-              uri: http://127.0.0.1:8083
+            # Separacion al MS3
+
+            - id: regiones-service
+              uri: lb://bibliotecas
               predicates:
                 - Path=/api/v1/regiones/**
+
+            - id: comunas-service
+              uri: lb://bibliotecas
+              predicates:
                 - Path=/api/v1/comunas/**
+
+            - id: bibliotecas-service
+              uri: lb://bibliotecas
+              predicates:
                 - Path=/api/v1/bibliotecas/**
 
-            - id: MS4-service
-              uri: http://127.0.0.1:8084
+            # Separacion al MS4
+
+            - id: libros-service
+              uri: lb://libros
               predicates:
               - Path=/api/v1/libros/**
+
+            - id: categorias-service
+              uri: lb://libros
+              predicates:  
               - Path=/api/v1/categorias/**
+
+            - id: autores-service
+              uri: lb://libros
+              predicates:
               - Path=/api/v1/autores/**
+
+            - id: editoriales-service
+              uri: lb://libros
+              predicates:
               - Path=/api/v1/editoriales/**
