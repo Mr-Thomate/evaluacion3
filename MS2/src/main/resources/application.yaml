@@ -1,21 +1,24 @@
+server:
+  port: 0
+
 spring:
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_empleados?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/biblioteca_MS2?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
+
   jpa:
     hibernate:
       ddl-auto: none
     show-sql: 'true'
+
   application:
     name: MS2
+
   flyway:
     enabled: 'true'
     baseline-on-migrate: 'true'
-
-server:
-  port: 0
 
 springdoc:
   api-docs:
@@ -36,7 +39,7 @@ spring:
       on-profile: dev
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_empleados_dev?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/biblioteca_MS2_dev?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
@@ -51,7 +54,7 @@ spring:
       on-profile: test
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_empleados_test?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/biblioteca_MS2_test?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
@@ -66,7 +69,7 @@ spring:
       on-profile: prod
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_empleados_prod?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/biblioteca_MS2_prod?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
