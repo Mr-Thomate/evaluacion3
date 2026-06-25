@@ -90,6 +90,8 @@ public class EmpleadoService {
                 .block();
 
             dto.setBiblioteca(bibliotecaGuardado);
+        }catch (Exception e){
+            dto.setBiblioteca(null);
         }
         if (emp.getContrato() != null) {
             dto.setEstadoContrato("Con contrato");
