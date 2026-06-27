@@ -1,8 +1,6 @@
 package MS4.MS4.model;
 
 import java.util.List;
-
-import MS4.MS4.dto.PrestamoExternoDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,7 +33,6 @@ public class Libro {
     @Size(min = 10, max = 10, message = "La fecha debe estar en formato 'dd-mm-yyyy'")
     private String fechaPublicacion;
 
-
     @OneToMany(mappedBy = "libro")
     private List<LibroCategoria> libroCategoria;
 
@@ -44,7 +41,4 @@ public class Libro {
 
     @OneToMany(mappedBy = "libro")
     private List<LibroAutor> libroAutor;
-
-    @OneToMany(mappedBy = "libro")
-    private List<PrestamoExternoDTO> prestamo;
 }

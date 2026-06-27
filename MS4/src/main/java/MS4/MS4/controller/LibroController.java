@@ -1,7 +1,14 @@
 package MS4.MS4.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +20,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import MS4.MS4.assemblers.LibroModelAssembler;
 import MS4.MS4.dto.LibroDTO;
 import MS4.MS4.model.Libro;
 import MS4.MS4.service.LibroService;
@@ -21,105 +30,131 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("api/v1/libros")
 public class LibroController {
+    
     @Autowired
     private LibroService libroService;
 
-    // Retornar lista libros
-    @GetMapping
-    public ResponseEntity<List<LibroDTO>> obtenerTodosLibros() {
-        List<LibroDTO> listaLibros = libroService.obtenerTodos();
-        if (listaLibros.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaLibros, HttpStatus.OK);
+    @Autowired
+    private LibroModelAssembler assembler;
+
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<LibroDTO>>> obtenerTodosLibros() {
+        List<EntityModel<LibroDTO>> libros = libroService.obtenerTodos().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (libros.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                libros,
+                linkTo(methodOn(LibroController.class).obtenerTodosLibros()).withSelfRel()
+        ));
     }
 
-    // Buscar por id
-    @GetMapping("/{id}")
-    public ResponseEntity<LibroDTO> obtenerPorId(@PathVariable Integer id) {
+    @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<LibroDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
             LibroDTO libro = libroService.buscarPorId(id);
-            return new ResponseEntity<>(libro, HttpStatus.OK);
+            return ResponseEntity.ok(assembler.toModel(libro));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // Buscar por autor
-    @GetMapping("/autor/{autor}")
-    public ResponseEntity<List<LibroDTO>> buscarPorAutor(@PathVariable String autor) {
-        List<LibroDTO> listaLibros = libroService.buscarPorAutor(autor);
-        if (listaLibros.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaLibros, HttpStatus.OK);
-    }
-    // Buscar por categoria
-    @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<LibroDTO>> buscarPorCategoria(@PathVariable String categoria) {
-        List<LibroDTO> listaLibros = libroService.buscarPorCategoria(categoria);
-        if (listaLibros.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaLibros, HttpStatus.OK);
-    }
-    // Buscar por editorial
-    @GetMapping("/editorial/{editorial}")
-    public ResponseEntity<List<LibroDTO>> buscarPorEditorial(@PathVariable String editorial) {
-        List<LibroDTO> listaLibros = libroService.buscarPorEditorial(editorial);
-        if (listaLibros.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaLibros, HttpStatus.OK);
-    }
-    // Buscar por prestamo
-    @GetMapping("/prestamo/{id}")
-    public ResponseEntity<List<LibroDTO>> buscarPorIdPrestamo(@PathVariable Integer id) {
-        List<LibroDTO> listaLibros = libroService.buscarPorPrestamo(id);
-        if (listaLibros.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaLibros, HttpStatus.OK);
+    @GetMapping(value = "/autor/{autor}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<LibroDTO>>> buscarPorAutor(@PathVariable String autor) {
+        List<EntityModel<LibroDTO>> libros = libroService.buscarPorAutor(autor).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (libros.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                libros,
+                linkTo(methodOn(LibroController.class).buscarPorAutor(autor)).withSelfRel()
+        ));
     }
 
-    // Guardar nuevo libro
-    @PostMapping
-    public ResponseEntity<Libro> guardarLibro(@Valid @RequestBody Libro libroNuevo) {
+    @GetMapping(value = "/categoria/{categoria}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<LibroDTO>>> buscarPorCategoria(@PathVariable String categoria) {
+        List<EntityModel<LibroDTO>> libros = libroService.buscarPorCategoria(categoria).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (libros.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                libros,
+                linkTo(methodOn(LibroController.class).buscarPorCategoria(categoria)).withSelfRel()
+        ));
+    }
+
+    @GetMapping(value = "/editorial/{editorial}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<LibroDTO>>> buscarPorEditorial(@PathVariable String editorial) {
+        List<EntityModel<LibroDTO>> libros = libroService.buscarPorEditorial(editorial).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (libros.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                libros,
+                linkTo(methodOn(LibroController.class).buscarPorEditorial(editorial)).withSelfRel()
+        ));
+    }
+
+    @GetMapping(value = "/prestamo/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<LibroDTO>>> buscarPorIdPrestamo(@PathVariable Integer id) {
+        List<EntityModel<LibroDTO>> libros = libroService.buscarPorPrestamo(id).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (libros.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                libros,
+                linkTo(methodOn(LibroController.class).buscarPorIdPrestamo(id)).withSelfRel()
+        ));
+    }
+
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<LibroDTO>> guardarLibro(@Valid @RequestBody Libro libroNuevo) {
         try {
             Libro guardado = libroService.guardar(libroNuevo);
-            return new ResponseEntity<>(guardado, HttpStatus.CREATED);
+            LibroDTO dtoCreado = libroService.buscarPorId(guardado.getIsbn());
+            return ResponseEntity
+                    .created(linkTo(methodOn(LibroController.class).obtenerPorId(dtoCreado.getIsbn())).toUri())
+                    .body(assembler.toModel(dtoCreado));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    // Editar libro
-    @PatchMapping("/{id}")
-    public ResponseEntity<Libro> editarLibro(@PathVariable Integer id, @Valid @RequestBody Libro libro) {
+    @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<LibroDTO>> editarLibro(@PathVariable Integer id, @Valid @RequestBody Libro libro) {
         try {
             Libro editado = libroService.guardar(libro);
-            return new ResponseEntity<>(editado, HttpStatus.OK);
+            LibroDTO dtoEditado = libroService.buscarPorId(editado.getIsbn());
+            return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Actualizar libro
-    @PutMapping("/{id}")
-    public ResponseEntity<Libro> actualizarLibro(@PathVariable Integer id, @Valid @RequestBody Libro libro) {
+    @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<LibroDTO>> actualizarLibro(@PathVariable Integer id, @Valid @RequestBody Libro libro) {
         try {
             Libro actualizado = libroService.actualizar(id, libro);
-            return new ResponseEntity<>(actualizado, HttpStatus.OK);
+            LibroDTO dtoActualizado = libroService.buscarPorId(actualizado.getIsbn());
+            return ResponseEntity.ok(assembler.toModel(dtoActualizado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Eliminar libro
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarLibro(@PathVariable Integer id) {
         String resultado = libroService.eliminar(id);
-
         if (resultado.contains("exito")) {
             return new ResponseEntity<>(resultado, HttpStatus.OK);
         } else {

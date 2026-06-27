@@ -8,8 +8,8 @@ public class PrestamoDTO {
     private String fechaIncio; 
     private String fechaFin;   
     private String estado;
-    private Integer clienteIdCliente;
-    private String nombreClienteCompleto; 
-    private Integer libroId;      
-    private Integer bibliotecaId; 
+    private Integer clienteIdCliente; 
+    private String nombreClienteCompleto;
+    private LibroExternoDTO libro;
+    private BibliotecaExternoDTO biblioteca;
 }

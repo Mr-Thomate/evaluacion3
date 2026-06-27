@@ -1,86 +1,96 @@
 package evaluacion3.MS2.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import evaluacion3.MS2.assemblers.ContratoModelAssembler;
+import evaluacion3.MS2.dto.ContratoDTO;
 import evaluacion3.MS2.model.Contrato;
 import evaluacion3.MS2.service.ContratoService;
-import evaluacion3.MS2.dto.ContratoDTO;
 
 @RestController
-@RequestMapping("api/v1/contratos")
+@RequestMapping("/api/v1/contratos")
 public class ContratoController {
     
     @Autowired
     private ContratoService contratoService;
 
-    // Retornar lista Contratos
-    @GetMapping
-    public ResponseEntity<List<ContratoDTO>> obtenerTodosContratos() {
-        List<ContratoDTO> listaContratos = contratoService.obtenerTodos();
-        if (listaContratos.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaContratos, HttpStatus.OK);
+    @Autowired
+    private ContratoModelAssembler assembler;
+
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<ContratoDTO>>> obtenerTodosContratos() {
+        List<EntityModel<ContratoDTO>> contratos = contratoService.obtenerTodos().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (contratos.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                contratos,
+                linkTo(methodOn(ContratoController.class).obtenerTodosContratos()).withSelfRel()
+        ));
     }
 
-    // Buscar por id
-    @GetMapping("/{id}")
-    public ResponseEntity<ContratoDTO> obtenerPorId(@PathVariable Integer id) {
+    @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ContratoDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
-            ContratoDTO contrato = contratoService.buscarPorId(id);
-            return new ResponseEntity<>(contrato, HttpStatus.OK);
+            ContratoDTO dto = contratoService.buscarPorId(id);
+            return ResponseEntity.ok(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // Guardar nuevo contrato
-    @PostMapping
-    public ResponseEntity<Contrato> guardarcontrato(@RequestBody Contrato nuevocontrato) {
+    @GetMapping(value = "/empleado/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<ContratoDTO>>> buscarPorIdEmpleado(@PathVariable Integer id) {
+        List<EntityModel<ContratoDTO>> lista = contratoService.buscarPorIdEmpleado(id).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (lista.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                lista,
+                linkTo(methodOn(ContratoController.class).buscarPorIdEmpleado(id)).withSelfRel()
+        ));
+    }
+
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ContratoDTO>> guardarContrato(@Valid @RequestBody Contrato nuevocontrato) {
         try {
             Contrato guardado = contratoService.guardar(nuevocontrato);
-            return new ResponseEntity<>(guardado, HttpStatus.CREATED);
+            ContratoDTO dtoCreado = contratoService.buscarPorId(guardado.getId());
+            return ResponseEntity
+                    .created(linkTo(methodOn(ContratoController.class).obtenerPorId(dtoCreado.getIdContrato())).toUri())
+                    .body(assembler.toModel(dtoCreado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    // Editar Contrato
-    @PatchMapping("/{id}")
-    public ResponseEntity<Contrato> editarContrato(@PathVariable Integer id, @RequestBody Contrato contrato) {
-        try {
-            Contrato editado = contratoService.guardar(contrato);
-            return new ResponseEntity<>(editado, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    // actualizar Contrato
-    @PutMapping("/{id}")
-    public ResponseEntity<Contrato> actualizarContrato(@PathVariable Integer id, @RequestBody Contrato contrato) {
+    @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ContratoDTO>> actualizarContrato(@PathVariable Integer id, @Valid @RequestBody Contrato contrato) {
         try {
             Contrato editado = contratoService.actualizar(id, contrato);
-            return new ResponseEntity<>(editado, HttpStatus.OK);
+            ContratoDTO dtoActualizado = contratoService.buscarPorId(editado.getId());
+            return ResponseEntity.ok(assembler.toModel(dtoActualizado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Eliminar contrato
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarContrato(@PathVariable Integer id) {
         String resultado = contratoService.eliminar(id);
@@ -89,15 +99,5 @@ public class ContratoController {
         } else {
             return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
         }
-    }
-
-    // Buscar por empleado
-    @GetMapping("/contrato/{id}")
-    public ResponseEntity<List<ContratoDTO>> buscarPorIdEmpleado(@PathVariable Integer id) {
-        List<ContratoDTO> listaEmpleado = contratoService.buscarPorIdEmpleado(id);
-        if (listaEmpleado.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaEmpleado, HttpStatus.OK);
     }
 }

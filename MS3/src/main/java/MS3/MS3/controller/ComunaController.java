@@ -1,18 +1,18 @@
 package MS3.MS3.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import MS3.MS3.assemblers.ComunaModelAssembler;
 import MS3.MS3.dto.ComunaDTO;
 import MS3.MS3.model.Comuna;
 import MS3.MS3.service.ComunaService;
@@ -25,61 +25,68 @@ public class ComunaController {
     @Autowired
     private ComunaService comunaService;
 
-    // Retornar lista Comunas
-    @GetMapping
-    public ResponseEntity<List<ComunaDTO>> obtenerTodasComunas() {
-        List<ComunaDTO> listaComunas = comunaService.obtenerTodas();
-        if (listaComunas.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaComunas, HttpStatus.OK);
+    @Autowired
+    private ComunaModelAssembler assembler;
+
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<ComunaDTO>>> obtenerTodasComunas() {
+        List<EntityModel<ComunaDTO>> comunas = comunaService.obtenerTodas().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (comunas.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                comunas,
+                linkTo(methodOn(ComunaController.class).obtenerTodasComunas()).withSelfRel()
+        ));
     }
 
-    // Buscar por id
-    @GetMapping("/{id}")
-    public ResponseEntity<ComunaDTO> obtenerPorId(@PathVariable Integer id) {
+    @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ComunaDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
-            ComunaDTO comuna = comunaService.buscarPorId(id);
-            return new ResponseEntity<>(comuna, HttpStatus.OK);
+            ComunaDTO dto = comunaService.buscarPorId(id);
+            return ResponseEntity.ok(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    // Guardar nueva comuna
-    @PostMapping
-    public ResponseEntity<Comuna> guardarcomuna(@Valid @RequestBody Comuna comunanueva) {
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ComunaDTO>> guardarcomuna(@Valid @RequestBody Comuna comunanueva) {
         try {
             Comuna guardada = comunaService.guardar(comunanueva);
-            return new ResponseEntity<>(guardada, HttpStatus.CREATED);
+            ComunaDTO dtoCreado = comunaService.buscarPorId(guardada.getIdComuna());
+            return ResponseEntity
+                    .created(linkTo(methodOn(ComunaController.class).obtenerPorId(dtoCreado.getIdComuna())).toUri())
+                    .body(assembler.toModel(dtoCreado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Editar Comuna
-    @PatchMapping("/{id}")
-    public ResponseEntity<Comuna> editarComuna(@PathVariable Integer id, @Valid @RequestBody Comuna comuna) {
+    @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ComunaDTO>> editarComuna(@PathVariable Integer id, @Valid @RequestBody Comuna comuna) {
         try {
             Comuna editada = comunaService.guardar(comuna);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
+            ComunaDTO dtoEditado = comunaService.buscarPorId(editada.getIdComuna());
+            return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // actualizar Comuna
-    @PutMapping("/{id}")
-    public ResponseEntity<Comuna> actualizarComuna(@PathVariable Integer id, @Valid @RequestBody Comuna comuna) {
+    @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<ComunaDTO>> actualizarComuna(@PathVariable Integer id, @Valid @RequestBody Comuna comuna) {
         try {
             Comuna editada = comunaService.actualizar(id, comuna);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
+            ComunaDTO dtoActualizado = comunaService.buscarPorId(editada.getIdComuna());
+            return ResponseEntity.ok(assembler.toModel(dtoActualizado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    // Eliminar comuna
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarCategoria(@PathVariable Integer id) {
         String resultado = comunaService.eliminar(id);
@@ -90,13 +97,17 @@ public class ComunaController {
         }
     }
 
-    // Buscar bibliotecas en comuna
-    @GetMapping("/{comuna}")
-    public ResponseEntity<List<ComunaDTO>> buscarBibliotecasEnComuna(@PathVariable String biblioteca) {
-        List<ComunaDTO> listabibliotecas = comunaService.buscarBibliotecasEnComuna(biblioteca);
-        if (listabibliotecas.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listabibliotecas, HttpStatus.OK);
+    @GetMapping(value = "/{biblioteca}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<ComunaDTO>>> buscarBibliotecasEnComuna(@PathVariable String biblioteca) {
+        List<EntityModel<ComunaDTO>> listabibliotecas = comunaService.buscarBibliotecasEnComuna(biblioteca).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (listabibliotecas.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                listabibliotecas,
+                linkTo(methodOn(ComunaController.class).buscarBibliotecasEnComuna(biblioteca)).withSelfRel()
+        ));
     }
 }
