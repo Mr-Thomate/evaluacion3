@@ -3,8 +3,10 @@ package MS4.MS4.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import MS4.MS4.dto.AutorDTO;
 import MS4.MS4.model.Autor;
 import MS4.MS4.model.LibroAutor;
@@ -21,6 +23,11 @@ public class AutorService {
     public List<AutorDTO> obtenerTodos() {
         return autorRepository.findAll().stream().map(this::convertirADTO).collect(Collectors.toList());
     }
+    public AutorDTO buscarPorId(Integer id) {
+        return autorRepository.findById(id)
+                .map(this::convertirADTO)
+                .orElseThrow(() -> new RuntimeException("Error: No se encontró el autor con el ID: " + id));
+    }
 
     public List<AutorDTO> buscarPorTituloLibro(String tituloLibro) {
         List<Autor> autores = autorRepository.findByLibroTitulo(tituloLibro);
@@ -36,12 +43,8 @@ public class AutorService {
 
     public Autor actualizar(Integer id, Autor autor) {
         Autor aut = autorRepository.findById(id).orElseThrow(() -> new RuntimeException("Error: El autor no existe."));
-        if (autor.getNombre() != null) {
-            aut.setNombre(autor.getNombre());
-        }
-        if (autor.getLibroAutor() != null) {
-            aut.setLibroAutor(autor.getLibroAutor());
-        }
+        if (autor.getNombre() != null) aut.setNombre(autor.getNombre());
+        if (autor.getLibroAutor() != null) aut.setLibroAutor(autor.getLibroAutor());
         return autorRepository.save(aut);
     }
 

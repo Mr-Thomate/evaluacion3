@@ -1,67 +1,79 @@
 package evaluacion3.MS2.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import evaluacion3.MS2.assemblers.EmpleadoModelAssembler;
 import evaluacion3.MS2.dto.EmpleadoDTO;
 import evaluacion3.MS2.model.Empleado;
 import evaluacion3.MS2.service.EmpleadoService;
 
 @RestController
-@RequestMapping("api/v1/empleados")
+@RequestMapping("/api/v1/empleados")
 public class EmpleadoController {
 
     @Autowired
     private EmpleadoService empleadoService;
 
-    @GetMapping
-    public ResponseEntity<List<EmpleadoDTO>> obtenerTodosEmpleados() {
-        List<EmpleadoDTO> listaEmpleados = empleadoService.obtenerTodos();
-        if (listaEmpleados.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(listaEmpleados, HttpStatus.OK);
+    @Autowired
+    private EmpleadoModelAssembler assembler;
+
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<EmpleadoDTO>>> obtenerTodosEmpleados() {
+        List<EntityModel<EmpleadoDTO>> empleados = empleadoService.obtenerTodos().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (empleados.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                empleados,
+                linkTo(methodOn(EmpleadoController.class).obtenerTodosEmpleados()).withSelfRel()
+        ));
     }
 
-    @PostMapping
-    public ResponseEntity<Empleado> guardarEmpleado(@RequestBody Empleado nuevoEmpleado) {
+    @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EmpleadoDTO>> obtenerPorId(@PathVariable Integer id) {
+        try {
+            EmpleadoDTO dto = empleadoService.buscarPorId(id);
+            return ResponseEntity.ok(assembler.toModel(dto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EmpleadoDTO>> guardarEmpleado(@Valid @RequestBody Empleado nuevoEmpleado) {
         try {
             Empleado guardado = empleadoService.guardar(nuevoEmpleado);
-            return new ResponseEntity<>(guardado, HttpStatus.CREATED);
+            EmpleadoDTO dtoCreado = empleadoService.buscarPorId(guardado.getId());
+            return ResponseEntity
+                    .created(linkTo(methodOn(EmpleadoController.class).obtenerPorId(dtoCreado.getIdEmpleado())).toUri())
+                    .body(assembler.toModel(dtoCreado));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Empleado> actualizarEmpleado(@PathVariable Integer id, @RequestBody Empleado empleado) {
+    @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EmpleadoDTO>> actualizarEmpleado(@PathVariable Integer id, @Valid @RequestBody Empleado empleado) {
         try {
             Empleado editado = empleadoService.actualizar(id, empleado);
-            return new ResponseEntity<>(editado, HttpStatus.OK);
+            EmpleadoDTO dtoEditado = empleadoService.buscarPorId(editado.getId());
+            return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<Empleado> editarEmpleado(@PathVariable Integer id, @RequestBody Empleado empleado) {
-        try {
-            Empleado editado = empleadoService.actualizar(id, empleado);
-            return new ResponseEntity<>(editado, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 

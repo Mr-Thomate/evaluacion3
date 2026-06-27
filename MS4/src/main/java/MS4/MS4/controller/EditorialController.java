@@ -1,7 +1,14 @@
 package MS4.MS4.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import MS4.MS4.assemblers.EditorialModelAssembler;
 import MS4.MS4.dto.EditorialDTO;
 import MS4.MS4.model.Editorial;
 import MS4.MS4.service.EditorialService;
@@ -26,62 +35,83 @@ public class EditorialController {
     @Autowired
     private EditorialService editorialService;
 
-    @GetMapping
-    public ResponseEntity<List<EditorialDTO>> obtenerTodas() {
-        List<EditorialDTO> lista = editorialService.obtenerTodas();
-        if (lista.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(lista, HttpStatus.OK);
+    @Autowired
+    private EditorialModelAssembler assembler;
+
+    @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<EditorialDTO>>> obtenerTodas() {
+        List<EntityModel<EditorialDTO>> editoriales = editorialService.obtenerTodas().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        if (editoriales.isEmpty()) return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(CollectionModel.of(
+                editoriales,
+                linkTo(methodOn(EditorialController.class).obtenerTodas()).withSelfRel()
+        ));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EditorialDTO> obtenerPorId(@PathVariable Integer id) {
+    @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EditorialDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
             EditorialDTO dto = editorialService.buscarPorId(id);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            return ResponseEntity.ok(assembler.toModel(dto));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @GetMapping("/busqueda")
-    public ResponseEntity<List<EditorialDTO>> buscarPorLibro(@RequestParam String titulo) {
+    @GetMapping(value = "/busqueda", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<CollectionModel<EntityModel<EditorialDTO>>> buscarPorLibro(@RequestParam String titulo) {
         try {
-            List<EditorialDTO> lista = editorialService.buscarPorTituloLibro(titulo);
-            return new ResponseEntity<>(lista, HttpStatus.OK);
+            List<EntityModel<EditorialDTO>> lista = editorialService.buscarPorTituloLibro(titulo).stream()
+                    .map(assembler::toModel)
+                    .collect(Collectors.toList());
+                    
+            if(lista.isEmpty()) return ResponseEntity.noContent().build();
+
+            return ResponseEntity.ok(CollectionModel.of(
+                    lista,
+                    linkTo(methodOn(EditorialController.class).buscarPorLibro(titulo)).withSelfRel()
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Editorial> guardarEditorial(@Valid @RequestBody Editorial editorial) {
+    @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EditorialDTO>> guardarEditorial(@Valid @RequestBody Editorial editorial) {
         try {
             Editorial guardada = editorialService.guardar(editorial);
-            return new ResponseEntity<>(guardada, HttpStatus.CREATED);
+            EditorialDTO dtoCreado = editorialService.buscarPorId(guardada.getId());
+            return ResponseEntity
+                    .created(linkTo(methodOn(EditorialController.class).obtenerPorId(dtoCreado.getIdEditorial())).toUri())
+                    .body(assembler.toModel(dtoCreado));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         }
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Editorial> editarEditorial(@PathVariable Integer id, @Valid @RequestBody Editorial editorial) {
+    @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EditorialDTO>> editarEditorial(@PathVariable Integer id, @Valid @RequestBody Editorial editorial) {
         try {
             Editorial editada = editorialService.guardar(editorial);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
+            EditorialDTO dtoEditado = editorialService.buscarPorId(editada.getId());
+            return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Editorial> actualizarEditorial(@PathVariable Integer id, @Valid @RequestBody Editorial editorial) {
+    @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+    public ResponseEntity<EntityModel<EditorialDTO>> actualizarEditorial(@PathVariable Integer id, @Valid @RequestBody Editorial editorial) {
         try {
             Editorial editada = editorialService.actualizar(id, editorial);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
+            EditorialDTO dtoActualizado = editorialService.buscarPorId(editada.getId());
+            return ResponseEntity.ok(assembler.toModel(dtoActualizado));
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 

@@ -58,24 +58,12 @@ public class LibroService {
     public Libro actualizar(Integer id, Libro libro) {
         Libro lib = libroRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Error: El libro no existe."));
-        if (libro.getTitulo() != null) {
-            lib.setTitulo(libro.getTitulo());
-        }
-        if (libro.getFechaPublicacion() != null) {
-            lib.setFechaPublicacion(libro.getFechaPublicacion());
-        }
-        if (libro.getLibroCategoria() != null) {
-            lib.setLibroCategoria(libro.getLibroCategoria());
-        }
-        if (libro.getLibroEditorial() != null) {
-            lib.setLibroEditorial(libro.getLibroEditorial());
-        }
-        if (libro.getLibroAutor() != null) {
-            lib.setLibroAutor(libro.getLibroAutor());
-        }
-        if (libro.getPrestamo() != null) {
-            lib.setPrestamo(libro.getPrestamo());
-        }
+        if (libro.getTitulo() != null) lib.setTitulo(libro.getTitulo());
+        if (libro.getFechaPublicacion() != null) lib.setFechaPublicacion(libro.getFechaPublicacion());
+        if (libro.getLibroCategoria() != null) lib.setLibroCategoria(libro.getLibroCategoria());
+        if (libro.getLibroEditorial() != null) lib.setLibroEditorial(libro.getLibroEditorial());
+        if (libro.getLibroAutor() != null) lib.setLibroAutor(libro.getLibroAutor());
+        
         return libroRepository.save(lib);
     }
 
@@ -93,11 +81,6 @@ public class LibroService {
         if (libro.getLibroAutor() != null && !libro.getLibroAutor().isEmpty()) {
             dto.setNombreAutor(libro.getLibroAutor().get(0).getAutor().getNombre());
         }
-        //if (libro.getPrestamo() != null && !libro.getPrestamo().isEmpty()) {
-        //    dto.setNombreClientesPrestamo(libro.getPrestamo().stream()
-        //        .map(p -> p.getCliente().getPnombre() + " " + p.getCliente().getPapellido())
-        //        .collect(Collectors.toList()));
-        //}
         return dto;
     }
 }

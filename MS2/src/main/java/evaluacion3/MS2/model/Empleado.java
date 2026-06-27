@@ -1,15 +1,17 @@
 package evaluacion3.MS2.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -41,16 +43,15 @@ public class Empleado {
     @Column(nullable = true, length = 15)
     private String sapellido; 
 
-    @NotBlank(message = "El empleado debe registrar su fecha de nacimiento")
-    @Size(min = 10, max = 10, message = "La fecha de nacimiento debe estar en formato 'dd-mm-yyyy'")
-    @Column(nullable = false, length = 10)
-    private String fechaNacimiento;
+    @NotNull(message = "El empleado debe registrar su fecha de nacimiento")
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
 
     @OneToOne
     @JoinColumn(name = "contrato_id")
     private Contrato contrato;
 
-    @ManyToOne
-    @JoinColumn(name = "biblioteca_id")
+    @NotNull(message = "El empleado debe tener una biblioteca asignada")
+    @Column(name = "biblioteca_id", nullable = false)
     private Integer bibliotecaId;
 }

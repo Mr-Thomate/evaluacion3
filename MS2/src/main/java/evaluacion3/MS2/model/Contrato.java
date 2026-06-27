@@ -1,7 +1,7 @@
 package evaluacion3.MS2.model;
 
 import java.time.LocalDate;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,23 +28,21 @@ public class Contrato {
 
     @NotBlank(message = "El contrato debe tener un tipo de contrato")
     @Size(min = 5, max = 15, message = "El tipo de contrato debe tener entre 5 y 15 caracteres")
-    @Column(nullable = false, length = 15)
+    @Column(name="tipo_contrato", nullable = false, length = 15)
     private String tipoContrato;
 
-    @NotBlank(message = "El contrato debe tener fecha de inicio")
-    @Size(min = 10, max = 10, message = "La fecha de inicio debe tener formato 'dd-mm-yyyy'")
-    @Column(nullable = false, length = 10)
+    @NotNull(message = "El contrato debe tener fecha de inicio")
+    @Column(name="fecha_inicio", nullable = false)
     private LocalDate fechaInicio;
 
-    @Size(min = 10, max = 10, message = "La fecha de fin debe tener formato 'dd-mm-yyyy'")
-    @Column(nullable = true, length = 10)
+    @Column(name="fecha_fin", nullable = true)
     private LocalDate fechaFin;
 
     @NotNull(message = "El contrato debe incluir un sueldo")
-    @Size(max = 8, message = "El sueldo no puede tener mas de 8 digitos")
-    @Column(nullable = false, length = 8)
+    @Column(nullable = false)
     private Integer sueldo;
 
     @OneToOne(mappedBy = "contrato")
+    @JsonIgnore
     private Empleado empleado;
 }

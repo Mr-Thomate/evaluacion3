@@ -5,12 +5,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import Evaluacion3.MS1.dto.BibliotecaExternoDTO;
+import Evaluacion3.MS1.dto.LibroExternoDTO;
 import Evaluacion3.MS1.dto.PrestamoDTO;
 import Evaluacion3.MS1.model.Prestamo;
 import Evaluacion3.MS1.repository.PrestamoRepository;
 import jakarta.transaction.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 @Transactional
@@ -18,6 +23,9 @@ public class PrestamoService {
 
     @Autowired
     private PrestamoRepository prestamoRepository;
+
+    @Autowired
+    private WebClient.Builder webClientBuilder;
     
     private final DateTimeFormatter formateador = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
@@ -66,19 +74,40 @@ public class PrestamoService {
         PrestamoDTO dto = new PrestamoDTO();
         dto.setIdPrestamo(prestamo.getId());
         dto.setEstado(prestamo.getEstado());
-        dto.setLibroId(prestamo.getLibroId());
-        dto.setBibliotecaId(prestamo.getBibliotecaId());
         
-        if (prestamo.getFechaInicio() != null) {
-            dto.setFechaIncio(prestamo.getFechaInicio().format(formateador));
-        }
-        if (prestamo.getFechaDevolucion() != null) {
-            dto.setFechaFin(prestamo.getFechaDevolucion().format(formateador));
-        }
+        if (prestamo.getFechaInicio() != null) dto.setFechaIncio(prestamo.getFechaInicio().format(formateador));
+        if (prestamo.getFechaDevolucion() != null) dto.setFechaFin(prestamo.getFechaDevolucion().format(formateador));
         
         if (prestamo.getCliente() != null) {
             dto.setClienteIdCliente(prestamo.getCliente().getId());
             dto.setNombreClienteCompleto(prestamo.getCliente().getPnombre() + " " + prestamo.getCliente().getPapellido());
+        }
+        
+        try {
+            LibroExternoDTO libroGuardado = webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8083/api/v1/libros/" + prestamo.getLibroId()) 
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
+                .bodyToMono(LibroExternoDTO.class)
+                .block();
+
+            dto.setLibro(libroGuardado);
+        } catch (Exception e) {
+            dto.setLibro(null);
+        }
+        try {
+            BibliotecaExternoDTO bibliotecaGuardado = webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8084/api/v1/bibliotecas/" + prestamo.getBibliotecaId()) 
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
+                .bodyToMono(BibliotecaExternoDTO.class)
+                .block();
+
+            dto.setBiblioteca(bibliotecaGuardado);
+        } catch (Exception e) {
+            dto.setBiblioteca(null); 
         }
         
         return dto;

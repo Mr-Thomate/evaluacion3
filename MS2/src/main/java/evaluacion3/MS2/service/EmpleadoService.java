@@ -31,6 +31,11 @@ public class EmpleadoService {
         }
         return listaDTO;
     }
+    public EmpleadoDTO buscarPorId(Integer id) {
+        return empleadoRepository.findById(id)
+                .map(this::convertirADTO)
+                .orElseThrow(() -> new RuntimeException("Error: No se encontró el empleado con ID: " + id));
+    }
 
     public Empleado guardar(Empleado nuevoEmpleado) {
         return empleadoRepository.save(nuevoEmpleado);
