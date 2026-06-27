@@ -1,12 +1,12 @@
 server:
-  port: 8081
+  port: 0
 
 spring:
   application:
-    name: microservicio-prestamo
+    name: MS3
   
   datasource:
-    url: jdbc:mysql://localhost:3306/biblioteca_prestamos?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/biblioteca_MS3?createDatabaseIfNotExist=true
     username: root
     password: 
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -20,8 +20,58 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
 springdoc:
   api-docs:
     path: /api-docs
   swagger-ui:
     path: /doc/swagger-ui/index.html
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/biblioteca_MS3_dev?createDatabaseIfNotExist=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: update # Permitimos que actualice localmente si es necesario
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/biblioteca_MS3_test?createDatabaseIfNotExist=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/biblioteca_MS3_prod?createDatabaseIfNotExist=true
+    driverClassName: com.mysql.cj.jdbc.Driver
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: none
