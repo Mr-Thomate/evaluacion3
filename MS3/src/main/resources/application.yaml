@@ -27,9 +27,7 @@ eureka:
 
 springdoc:
   api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /doc/swagger-ui/index.html
+    path: /bibliotecas/api-docs
 
 ---
 
