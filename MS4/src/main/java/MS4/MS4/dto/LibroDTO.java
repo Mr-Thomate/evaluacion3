@@ -1,5 +1,6 @@
 package MS4.MS4.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
 public class LibroDTO {
     private Integer isbn;
     private String titulo;
-    private String fechaPublicacion;
+    private LocalDate fechaPublicacion;
     private String categoria;
     private String nombreEditorial;
     private String nombreAutor;

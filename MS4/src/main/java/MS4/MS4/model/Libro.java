@@ -1,5 +1,6 @@
 package MS4.MS4.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +32,7 @@ public class Libro {
 
     @NotBlank(message = "El libro debe tener una fecha de publicacion")
     @Size(min = 10, max = 10, message = "La fecha debe estar en formato 'dd-mm-yyyy'")
-    private String fechaPublicacion;
+    private LocalDate fechaPublicacion;
 
     @OneToMany(mappedBy = "libro")
     private List<LibroCategoria> libroCategoria;
