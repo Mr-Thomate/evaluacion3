@@ -23,6 +23,11 @@ spring:
 springdoc:
   api-docs:
     path: /prestamos/api-docs
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
   
 ---
 
