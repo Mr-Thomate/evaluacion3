@@ -14,7 +14,7 @@ spring:
     show-sql: 'true'
 
   application:
-    name: MS2
+    name: empleados
 
   flyway:
     enabled: 'true'
