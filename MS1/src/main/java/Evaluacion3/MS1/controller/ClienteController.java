@@ -26,6 +26,7 @@ import Evaluacion3.MS1.model.Cliente;
 import Evaluacion3.MS1.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -52,7 +53,23 @@ public class ClienteController {
             responseCode = "200",
             description  = "Lista de clientes obtenida exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ClienteDTO.class))
+                           schema = @Schema(implementation = ClienteDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "_embedded": {
+                    "clienteDTOList": [{
+                      "id": 1,
+                      "pnombre": "Juan",
+                      "snombre": "Carlos",
+                      "papellido": "Pérez",
+                      "sapellido": "Gómez",
+                      "fechaNacimiento": "15-03-1990",
+                      "sexo": "Masculino",
+                      "idPrestamosAsociados": [1, 2]
+                    }]
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "204",
@@ -85,7 +102,20 @@ public class ClienteController {
             responseCode = "200",
             description  = "Cliente encontrado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ClienteDTO.class))
+                           schema = @Schema(implementation = ClienteDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "id": 1,
+                  "pnombre": "Juan",
+                  "snombre": "Carlos",
+                  "papellido": "Pérez",
+                  "sapellido": "Gómez",
+                  "fechaNacimiento": "15-03-1990",
+                  "sexo": "Masculino",
+                  "idPrestamosAsociados": [1, 2]
+                }
+            """)
+        )
         ),
         @ApiResponse(
             responseCode = "404",
@@ -229,10 +259,12 @@ public class ClienteController {
     )
     @ApiResponses({
         @ApiResponse(
-            responseCode = "200",
-            description  = "Cliente eliminado exitosamente",
-            content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Cliente eliminado con éxito"))
+            responseCode =  "200",
+            description  =  "Cliente eliminado exitosamente",
+            content      =  @Content(mediaType = "text/plain",
+                            schema = @Schema(type = "string", example = "Cliente eliminado con éxito"),
+                            examples  = @ExampleObject(value = "El cliente con ID: 1 ha sido eliminado con éxito.")
+        )
         ),
         @ApiResponse(
             responseCode = "404",

@@ -27,6 +27,7 @@ import evaluacion3.MS2.model.Contrato;
 import evaluacion3.MS2.service.ContratoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -53,7 +54,21 @@ public class ContratoController {
             responseCode = "200",
             description  = "Lista de contratos obtenida exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class))
+                           schema = @Schema(implementation = ContratoDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "_embedded": {
+                    "contratoDTOList": [{
+                      "idContrato": 1,
+                      "tipoCntrato": "Indefinido",
+                      "fechaInicio": "01-03-2023",
+                      "fechaFin": null,
+                      "sueldo": 850000,
+                      "nombreEmpleado": "Juan Pérez"
+                    }]
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "204",
@@ -84,7 +99,17 @@ public class ContratoController {
             responseCode = "200",
             description  = "Contrato encontrado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class))
+                           schema = @Schema(implementation = ContratoDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idContrato": 1,
+              "tipoCntrato": "Indefinido",
+              "fechaInicio": "01-03-2023",
+              "fechaFin": null,
+              "sueldo": 850000,
+              "nombreEmpleado": "Juan Pérez"
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -142,7 +167,17 @@ public class ContratoController {
             responseCode = "201",
             description  = "Contrato creado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class))
+                           schema = @Schema(implementation = ContratoDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idContrato": 3,
+              "tipoCntrato": "Plazo Fijo",
+              "fechaInicio": "01-06-2025",
+              "fechaFin": "01-06-2026",
+              "sueldo": 650000,
+              "nombreEmpleado": "Ana López"
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "400",
@@ -172,7 +207,17 @@ public class ContratoController {
             responseCode = "200",
             description  = "Contrato actualizado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class))
+                           schema = @Schema(implementation = ContratoDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idContrato": 1,
+              "tipoCntrato": "Indefinido",
+              "fechaInicio": "01-03-2023",
+              "fechaFin": null,
+              "sueldo": 950000,
+              "nombreEmpleado": "Juan Pérez"
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -200,7 +245,9 @@ public class ContratoController {
             responseCode = "200",
             description  = "Contrato eliminado exitosamente",
             content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Contrato eliminado con éxito"))
+                           schema = @Schema(type = "string", example = "Contrato eliminado con éxito"),
+        examples  = @ExampleObject(value = "El contrato se elimino con exito.")
+        )
         ),
         @ApiResponse(
             responseCode = "404",

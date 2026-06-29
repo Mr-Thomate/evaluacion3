@@ -22,7 +22,7 @@ spring:
 
 springdoc:
   api-docs:
-    path: /prestamos/api-docs
+    path: /clientes/api-docs
 
 eureka:
   client:
