@@ -18,7 +18,14 @@ import evaluacion3.MS2.assemblers.EmpleadoModelAssembler;
 import evaluacion3.MS2.dto.EmpleadoDTO;
 import evaluacion3.MS2.model.Empleado;
 import evaluacion3.MS2.service.EmpleadoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Empleados", description = "Operaciones CRUD sobre empleados de la biblioteca")
 @RestController
 @RequestMapping("/api/v1/empleados")
 public class EmpleadoController {
@@ -29,6 +36,23 @@ public class EmpleadoController {
     @Autowired
     private EmpleadoModelAssembler assembler;
 
+    @Operation(
+        summary     = "Listar todos los empleados",
+        description = "Retorna la lista completa de empleados con su contrato y biblioteca asociada"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Lista de empleados obtenida exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = EmpleadoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No existen empleados registrados",
+            content      = @Content
+        )
+    })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<EmpleadoDTO>>> obtenerTodosEmpleados() {
         List<EntityModel<EmpleadoDTO>> empleados = empleadoService.obtenerTodos().stream()
@@ -43,6 +67,23 @@ public class EmpleadoController {
         ));
     }
 
+    @Operation(
+        summary     = "Obtener empleado por ID",
+        description = "Retorna los datos de un empleado específico junto a su contrato y biblioteca"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Empleado encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = EmpleadoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Empleado no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<EmpleadoDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
@@ -53,6 +94,23 @@ public class EmpleadoController {
         }
     }
 
+    @Operation(
+        summary     = "Crear nuevo empleado",
+        description = "Registra un nuevo empleado en la base de datos"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description  = "Empleado creado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = EmpleadoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description  = "Datos del empleado inválidos o incompletos",
+            content      = @Content
+        )
+    })
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<EmpleadoDTO>> guardarEmpleado(@Valid @RequestBody Empleado nuevoEmpleado) {
         try {
@@ -66,6 +124,23 @@ public class EmpleadoController {
         }
     }
 
+    @Operation(
+        summary     = "Actualizar empleado",
+        description = "Modifica los datos de un empleado existente según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Empleado actualizado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = EmpleadoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Empleado no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<EmpleadoDTO>> actualizarEmpleado(@PathVariable Integer id, @Valid @RequestBody Empleado empleado) {
         try {
@@ -77,6 +152,23 @@ public class EmpleadoController {
         }
     }
 
+    @Operation(
+        summary     = "Eliminar empleado",
+        description = "Elimina un empleado de la base de datos según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Empleado eliminado exitosamente",
+            content      = @Content(mediaType = "text/plain",
+                           schema = @Schema(type = "string", example = "Empleado eliminado con éxito"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Empleado no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarEmpleado(@PathVariable Integer id) {
         try {

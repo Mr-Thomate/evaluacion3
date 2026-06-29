@@ -29,7 +29,6 @@ public class LibroServiceTest {
     private Libro crearLibro() {
         Libro libro = new Libro();
         libro.setTitulo("El Principito");
-        libro.setFechaPublicacion("1943-04-06");
 
         return libro;
     }
@@ -88,7 +87,6 @@ public class LibroServiceTest {
         Libro existente = crearLibro();
         Libro cambios = new Libro();
         cambios.setTitulo("El Principito - Edición Especial");
-        cambios.setFechaPublicacion("1943-05-01");
 
         when(libroRepository.findById(id)).thenReturn(Optional.of(existente));
         when(libroRepository.save(existente)).thenReturn(existente);
