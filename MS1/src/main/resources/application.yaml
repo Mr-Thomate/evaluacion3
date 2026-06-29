@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: MS1
+    name: clientes
   
   datasource:
     url: jdbc:mysql://localhost:3306/biblioteca_MS1?createDatabaseIfNotExist=true
@@ -22,7 +22,7 @@ spring:
 
 springdoc:
   api-docs:
-    path: /prestamos/api-docs
+    path: /clientes/api-docs
 
 eureka:
   client:

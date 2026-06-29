@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: MS3
+    name: bibliotecas
   
   datasource:
     url: jdbc:mysql://localhost:3306/biblioteca_MS3?createDatabaseIfNotExist=true

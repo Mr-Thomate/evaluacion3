@@ -20,6 +20,7 @@ import evaluacion3.MS2.model.Empleado;
 import evaluacion3.MS2.service.EmpleadoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -45,7 +46,25 @@ public class EmpleadoController {
             responseCode = "200",
             description  = "Lista de empleados obtenida exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = EmpleadoDTO.class))
+                           schema = @Schema(implementation = EmpleadoDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "_embedded": {
+                    "empleadoDTOList": [{
+                      "idEmpleado": 1,
+                      "pnombre": "Juan",
+                      "snombre": "Rodrigo",
+                      "papellido": "Pérez",
+                      "sapellido": "Gómez",
+                      "estadoContrato": "Indefinido",
+                      "biblioteca": {
+                        "idBiblioteca": 1,
+                        "nombreBiblioteca": "Biblioteca Central"
+                      }
+                    }]
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "204",
@@ -76,7 +95,21 @@ public class EmpleadoController {
             responseCode = "200",
             description  = "Empleado encontrado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = EmpleadoDTO.class))
+                           schema = @Schema(implementation = EmpleadoDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "idEmpleado": 1,
+                  "pnombre": "Juan",
+                  "snombre": "Rodrigo",
+                  "papellido": "Pérez",
+                  "sapellido": "Gómez",
+                  "estadoContrato": "Indefinido",
+                  "biblioteca": {
+                    "idBiblioteca": 1,
+                    "nombreBiblioteca": "Biblioteca Central"
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -103,7 +136,19 @@ public class EmpleadoController {
             responseCode = "201",
             description  = "Empleado creado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = EmpleadoDTO.class))
+                           schema = @Schema(implementation = EmpleadoDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "idEmpleado": 2,
+                  "pnombre": "Ana",
+                  "papellido": "López",
+                  "estadoContrato": null,
+                  "biblioteca": {
+                    "idBiblioteca": 1,
+                    "nombreBiblioteca": "Biblioteca Central"
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "400",
@@ -133,7 +178,21 @@ public class EmpleadoController {
             responseCode = "200",
             description  = "Empleado actualizado exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = EmpleadoDTO.class))
+                           schema = @Schema(implementation = EmpleadoDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "idEmpleado": 1,
+                  "pnombre": "Carlos",
+                  "snombre": "Andres",
+                  "papellido": "Lopez",
+                  "sapellido": "Martinez",
+                  "estadoContrato": "Indefinido",
+                  "biblioteca": {
+                    "idBiblioteca": 2,
+                    "nombreBiblioteca": "Biblioteca Sur"
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -158,10 +217,12 @@ public class EmpleadoController {
     )
     @ApiResponses({
         @ApiResponse(
-            responseCode = "200",
-            description  = "Empleado eliminado exitosamente",
-            content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Empleado eliminado con éxito"))
+            responseCode =  "200",
+            description  =  "Empleado eliminado exitosamente",
+            content      =  @Content(mediaType = "text/plain",
+                            schema = @Schema(type = "string", example = "Empleado eliminado con éxito"),
+                            examples  = @ExampleObject(value = "El empleado juan perez ha sido eliminado con exito.")
+        )
         ),
         @ApiResponse(
             responseCode = "404",
