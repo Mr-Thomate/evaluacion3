@@ -25,12 +25,16 @@ import Evaluacion3.MS1.dto.PrestamoDTO;
 import Evaluacion3.MS1.model.Prestamo;
 import Evaluacion3.MS1.service.PrestamoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Préstamos", description = "Operaciones CRUD sobre préstamos, orquestando datos de MS3 y MS4")
 @RestController
 @RequestMapping("/api/v1/prestamos")
-@Tag(name = "Prestamo Controller", description = "Orquestador distribuido de Préstamos con HATEOAS")
 public class PrestamoController {
     
     @Autowired
@@ -39,7 +43,23 @@ public class PrestamoController {
     @Autowired
     private PrestamoModelAssembler assembler;
 
-    @Operation(summary = "Obtener todos los prestamos")
+    @Operation(
+        summary     = "Listar todos los préstamos",
+        description = "Retorna la lista completa de préstamos con el cliente, libro y biblioteca asociados"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Lista de préstamos obtenida exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = PrestamoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No existen préstamos registrados",
+            content      = @Content
+        )
+    })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<PrestamoDTO>>> obtenerTodosPrestamos() {
         List<EntityModel<PrestamoDTO>> prestamos = prestamoService.obtenerTodos().stream()
@@ -56,7 +76,23 @@ public class PrestamoController {
         ));
     }
 
-    @Operation(summary = "Buscar prestamo por su ID")
+    @Operation(
+        summary     = "Obtener préstamo por ID",
+        description = "Retorna los datos de un préstamo específico junto al cliente, libro y biblioteca asociados"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Préstamo encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = PrestamoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Préstamo no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<PrestamoDTO>> buscarPorId(@PathVariable Integer id) {
         try {
@@ -67,7 +103,23 @@ public class PrestamoController {
         }
     }
 
-    @Operation(summary = "Generar un nuevo registro de prestamo con tipo DATE")
+    @Operation(
+        summary     = "Crear nuevo préstamo",
+        description = "Registra un nuevo préstamo en la base de datos con validación de fechas"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description  = "Préstamo creado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = PrestamoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description  = "Datos del préstamo inválidos o incompletos",
+            content      = @Content
+        )
+    })
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<PrestamoDTO>> agregarPrestamo(@Valid @RequestBody Prestamo prestamo) {
         try {
@@ -82,7 +134,23 @@ public class PrestamoController {
         }
     }
 
-    @Operation(summary = "Actualizar un prestamo por ID")
+    @Operation(
+        summary     = "Actualizar préstamo",
+        description = "Modifica todos los datos de un préstamo existente según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Préstamo actualizado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = PrestamoDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Préstamo no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<PrestamoDTO>> actualizarPrestamo(@PathVariable Integer id, @Valid @RequestBody Prestamo prestamo) {
         try {
@@ -95,7 +163,23 @@ public class PrestamoController {
         }
     }
 
-    @Operation(summary = "Eliminar un prestamo por ID")
+    @Operation(
+        summary     = "Eliminar préstamo",
+        description = "Elimina un préstamo de la base de datos según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Préstamo eliminado exitosamente",
+            content      = @Content(mediaType = "text/plain",
+                           schema = @Schema(type = "string", example = "Préstamo eliminado con éxito"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Préstamo no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarPrestamo(@PathVariable Integer id) {
         String resultado = prestamoService.eliminar(id);
