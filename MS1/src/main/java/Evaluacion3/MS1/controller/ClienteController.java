@@ -25,12 +25,16 @@ import Evaluacion3.MS1.dto.ClienteDTO;
 import Evaluacion3.MS1.model.Cliente;
 import Evaluacion3.MS1.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Clientes", description = "Operaciones CRUD sobre clientes y búsquedas por libro y préstamo")
 @RestController
 @RequestMapping("api/v1/clientes")
-@Tag(name = "Cliente Controller", description = "Gestion distribuida de Clientes con HATEOAS")
 public class ClienteController {
 
     @Autowired
@@ -39,7 +43,23 @@ public class ClienteController {
     @Autowired
     private ClienteModelAssembler assembler;
 
-    @Operation(summary = "Listar todos los clientes")
+    @Operation(
+        summary     = "Listar todos los clientes",
+        description = "Retorna la lista completa de clientes con sus préstamos asociados"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Lista de clientes obtenida exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No existen clientes registrados",
+            content      = @Content
+        )
+    })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<ClienteDTO>>> obtenerTodos() {
         List<EntityModel<ClienteDTO>> clientes = clienteService.obtenerTodos().stream()
@@ -56,7 +76,23 @@ public class ClienteController {
         ));
     }
 
-    @Operation(summary = "Buscar cliente por ID")
+    @Operation(
+        summary     = "Obtener cliente por ID",
+        description = "Retorna los datos de un cliente específico junto a sus préstamos asociados"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Cliente no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
@@ -67,7 +103,23 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Buscar clientes mediante el ID numerico de un libro")
+    @Operation(
+        summary     = "Buscar clientes por ID de libro",
+        description = "Retorna los clientes que tienen un préstamo activo del libro indicado (consulta externa a MS4)"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Clientes con préstamo del libro encontrados exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No se encontraron clientes con préstamo del libro indicado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/libro/{libroId}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<ClienteDTO>>> buscarPorIdLibro(@PathVariable Integer libroId) {
         List<EntityModel<ClienteDTO>> clientes = clienteService.buscarPorIdLibro(libroId).stream()
@@ -84,7 +136,23 @@ public class ClienteController {
         ));
     }
 
-    @Operation(summary = "Buscar cliente por ID de prestamo")
+    @Operation(
+        summary     = "Buscar cliente por ID de préstamo",
+        description = "Retorna el cliente asociado a un préstamo específico"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente del préstamo encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "No se encontró cliente asociado al préstamo indicado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/prestamo/{idPrestamo}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> buscarPorIdPrestamo(@PathVariable Integer idPrestamo) {
         try {
@@ -95,7 +163,23 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Crear un nuevo cliente")
+    @Operation(
+        summary     = "Crear nuevo cliente",
+        description = "Registra un nuevo cliente en la base de datos con validación de fecha de nacimiento"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description  = "Cliente creado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description  = "Datos del cliente inválidos o incompletos",
+            content      = @Content
+        )
+    })
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> guardarCliente(@Valid @RequestBody Cliente clienteNuevo) {
         try {
@@ -110,7 +194,23 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Actualizar un cliente por ID")
+    @Operation(
+        summary     = "Actualizar cliente",
+        description = "Modifica todos los datos de un cliente existente según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente actualizado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Cliente no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> actualizarCliente(@PathVariable Integer id, @Valid @RequestBody Cliente cliente) {
         try {
@@ -123,7 +223,23 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Eliminar un cliente")
+    @Operation(
+        summary     = "Eliminar cliente",
+        description = "Elimina un cliente de la base de datos según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente eliminado exitosamente",
+            content      = @Content(mediaType = "text/plain",
+                           schema = @Schema(type = "string", example = "Cliente eliminado con éxito"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Cliente no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarCliente(@PathVariable Integer id) {
         try {

@@ -25,8 +25,15 @@ import MS4.MS4.assemblers.AutorModelAssembler;
 import MS4.MS4.dto.AutorDTO;
 import MS4.MS4.model.Autor;
 import MS4.MS4.service.AutorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@Tag(name = "Autores", description = "Operaciones CRUD sobre autores y búsqueda por título de libro")
 @RestController
 @RequestMapping("/api/v1/autores")
 public class AutorController {
@@ -37,6 +44,23 @@ public class AutorController {
     @Autowired
     private AutorModelAssembler assembler;
 
+    @Operation(
+        summary     = "Listar todos los autores",
+        description = "Retorna la lista completa de autores con los títulos de sus libros"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Lista de autores obtenida exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No existen autores registrados",
+            content      = @Content
+        )
+    })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<AutorDTO>>> obtenerTodosAutores() {
         List<EntityModel<AutorDTO>> autores = autorService.obtenerTodos().stream()
@@ -51,6 +75,23 @@ public class AutorController {
         ));
     }
 
+    @Operation(
+        summary     = "Obtener autor por ID",
+        description = "Retorna los datos de un autor específico junto a los títulos de sus libros"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Autor encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Autor no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<AutorDTO>> obtenerPorId(@PathVariable Integer id) {
         try {
@@ -61,6 +102,28 @@ public class AutorController {
         }
     }
 
+    @Operation(
+        summary     = "Buscar autores por título de libro",
+        description = "Retorna los autores asociados a un libro cuyo título coincida con el parámetro"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Autores del libro encontrados exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No se encontraron autores para el título indicado",
+            content      = @Content
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Libro no encontrado con el título proporcionado",
+            content      = @Content
+        )
+    })
     @GetMapping(value = "/libro/{titulo}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<AutorDTO>>> obtenerAutorPorTituloLibro(@PathVariable String titulo) {
         try {
@@ -79,6 +142,23 @@ public class AutorController {
         }
     }
 
+    @Operation(
+        summary     = "Crear nuevo autor",
+        description = "Registra un nuevo autor en la base de datos"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description  = "Autor creado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description  = "Datos del autor inválidos o incompletos",
+            content      = @Content
+        )
+    })
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<AutorDTO>> guardarAutor(@Valid @RequestBody Autor autor) {
         try {
@@ -92,6 +172,23 @@ public class AutorController {
         }
     }
 
+    @Operation(
+        summary     = "Edición parcial de autor",
+        description = "Modifica parcialmente los datos de un autor existente según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Autor editado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Autor no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<AutorDTO>> editarAutor(@PathVariable Integer id, @Valid @RequestBody Autor autor) {
         try {
@@ -103,6 +200,23 @@ public class AutorController {
         }
     }
 
+    @Operation(
+        summary     = "Actualizar autor",
+        description = "Modifica todos los datos de un autor existente según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Autor actualizado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = AutorDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Autor no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<AutorDTO>> actualizarAutor(@PathVariable Integer id, @Valid @RequestBody Autor autor) {
         try {
@@ -114,6 +228,23 @@ public class AutorController {
         }
     }
 
+    @Operation(
+        summary     = "Eliminar autor",
+        description = "Elimina un autor de la base de datos según su ID"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Autor eliminado exitosamente",
+            content      = @Content(mediaType = "text/plain",
+                           schema = @Schema(type = "string", example = "Autor eliminado con éxito"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Autor no encontrado con el ID proporcionado",
+            content      = @Content
+        )
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarAutor(@PathVariable Integer id) {
         String resultado = autorService.eliminar(id);
