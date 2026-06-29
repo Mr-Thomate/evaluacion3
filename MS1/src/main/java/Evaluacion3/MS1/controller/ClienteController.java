@@ -95,7 +95,7 @@ public class ClienteController {
         }
     }
 
-    @Operation(summary = "Crear un nuevo cliente con validacion de tipo DATE")
+    @Operation(summary = "Crear un nuevo cliente")
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> guardarCliente(@Valid @RequestBody Cliente clienteNuevo) {
         try {
