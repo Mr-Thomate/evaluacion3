@@ -3,7 +3,7 @@
 
 --INTEGRANTES Y MICROSERVICIO/ENFOQUE--
 
--Thomas Mery - MS2 - Eureka - Gateway
+-Thomas Mery - MS2 - Eureka - Gateway - Swagger
 
 -Matias Diaz - MS3 - MS4 - Pruebas unitarias
 
