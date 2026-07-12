@@ -86,7 +86,7 @@ public class PrestamoService {
         try {
             LibroExternoDTO libroGuardado = webClientBuilder.build()
                 .get()
-                .uri("http://localhost:8083/api/v1/libros/" + prestamo.getLibroId()) 
+                .uri("http://libros/api/v1/libros/" + prestamo.getLibroId()) 
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
                 .bodyToMono(LibroExternoDTO.class)
@@ -99,7 +99,7 @@ public class PrestamoService {
         try {
             BibliotecaExternoDTO bibliotecaGuardado = webClientBuilder.build()
                 .get()
-                .uri("http://localhost:8084/api/v1/bibliotecas/" + prestamo.getBibliotecaId()) 
+                .uri("http://bibliotecas/api/v1/bibliotecas/" + prestamo.getBibliotecaId()) 
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.empty())
                 .bodyToMono(BibliotecaExternoDTO.class)

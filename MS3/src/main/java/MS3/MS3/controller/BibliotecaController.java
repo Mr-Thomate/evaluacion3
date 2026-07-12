@@ -18,6 +18,7 @@ import MS3.MS3.model.Biblioteca;
 import MS3.MS3.service.BibliotecaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,7 +45,21 @@ public class BibliotecaController {
             responseCode = "200",
             description  = "Lista de bibliotecas obtenida exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = BibliotecaDTO.class))
+                           schema = @Schema(implementation = BibliotecaDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "_embedded": {
+                    "bibliotecaDTOList": [{
+                      "id": 1,
+                      "nombreBiblioteca": "Biblioteca Central",
+                      "direccion": "Av. Providencia 1234",
+                      "nombreComuna": "Providencia",
+                      "clienteConPrestamo": ["Juan Pérez", "Ana López"],
+                      "nombreEmpleados": ["Carlos Gómez"]
+                    }]
+                  }
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "204",
@@ -75,7 +90,17 @@ public class BibliotecaController {
             responseCode = "200",
             description  = "Biblioteca encontrada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = BibliotecaDTO.class))
+                           schema = @Schema(implementation = BibliotecaDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "id": 1,
+                  "nombreBiblioteca": "Biblioteca Central",
+                  "direccion": "Av. Providencia 1234",
+                  "nombreComuna": "Providencia",
+                  "clienteConPrestamo": ["Juan Pérez", "Ana López"],
+                  "nombreEmpleados": ["Carlos Gómez"]
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -101,7 +126,17 @@ public class BibliotecaController {
             responseCode = "201",
             description  = "Biblioteca creada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = BibliotecaDTO.class))
+                           schema = @Schema(implementation = BibliotecaDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "id": 3,
+                  "nombreBiblioteca": "Biblioteca Norte",
+                  "direccion": "Calle Falsa 456",
+                  "nombreComuna": "Recoleta",
+                  "clienteConPrestamo": [],
+                  "nombreEmpleados": []
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "400",
@@ -131,7 +166,17 @@ public class BibliotecaController {
             responseCode = "200",
             description  = "Biblioteca actualizada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = BibliotecaDTO.class))
+                           schema = @Schema(implementation = BibliotecaDTO.class),
+            examples  = @ExampleObject(value = """
+                {
+                  "id": 1,
+                  "nombreBiblioteca": "Biblioteca Central Actualizada",
+                  "direccion": "Av. Providencia 9999",
+                  "nombreComuna": "Providencia",
+                  "clienteConPrestamo": ["Juan Pérez"],
+                  "nombreEmpleados": ["Carlos Gómez"]
+                }
+            """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -159,7 +204,9 @@ public class BibliotecaController {
             responseCode = "200",
             description  = "Biblioteca eliminada exitosamente",
             content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Biblioteca eliminada con éxito"))
+                           schema = @Schema(type = "string", example = "Biblioteca eliminada con éxito"),
+            examples  = @ExampleObject(value = "La biblioteca Biblioteca buscada se elimino con exito.")
+        )
         ),
         @ApiResponse(
             responseCode = "404",
@@ -212,7 +259,21 @@ public class BibliotecaController {
             responseCode = "200",
             description  = "Bibliotecas de la comuna obtenidas exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = BibliotecaDTO.class))
+                           schema = @Schema(implementation = BibliotecaDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "_embedded": {
+                "bibliotecaDTOList": [{
+                  "id": 1,
+                  "nombreBiblioteca": "Biblioteca Central",
+                  "direccion": "Av. Providencia 1234",
+                  "nombreComuna": "Providencia",
+                  "clienteConPrestamo": [],
+                  "nombreEmpleados": ["Carlos Gómez"]
+                }]
+              }
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "204",

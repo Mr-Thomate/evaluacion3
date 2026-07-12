@@ -45,8 +45,17 @@ public class ClienteController {
 
     @Operation(summary = "Listar todos los clientes", description = "Retorna la lista completa de clientes con sus préstamos asociados")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Lista de clientes obtenida exitosamente", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ClienteDTO.class))),
-        @ApiResponse(responseCode = "204", description = "No existen clientes registrados", content = @Content)
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Lista de clientes obtenida exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "204",
+            description  = "No existen clientes registrados",
+            content      = @Content
+        )
     })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<ClienteDTO>>> obtenerTodos() {
@@ -58,8 +67,17 @@ public class ClienteController {
 
     @Operation(summary = "Obtener cliente por ID", description = "Retorna los datos de un cliente específico junto a sus préstamos")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Cliente encontrado exitosamente", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ClienteDTO.class))),
-        @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content)
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente encontrado exitosamente",
+            content      = @Content(mediaType = "application/hal+json",
+                           schema = @Schema(implementation = ClienteDTO.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Cliente no encontrado con el ID proporcionado",
+            content      = @Content
+        )
     })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ClienteDTO>> obtenerPorId(@PathVariable Integer id) {
@@ -136,8 +154,17 @@ public class ClienteController {
 
     @Operation(summary = "Eliminar cliente")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Cliente eliminado exitosamente", content = @Content(mediaType = "text/plain")),
-        @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content)
+        @ApiResponse(
+            responseCode = "200",
+            description  = "Cliente eliminado exitosamente",
+            content      = @Content(mediaType = "text/plain",
+                           schema = @Schema(type = "string", example = "Cliente eliminado con éxito"))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description  = "Cliente no encontrado con el ID proporcionado",
+            content      = @Content
+        )
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarCliente(@PathVariable Integer id) {

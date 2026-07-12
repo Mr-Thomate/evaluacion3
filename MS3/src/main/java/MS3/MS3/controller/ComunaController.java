@@ -18,6 +18,7 @@ import MS3.MS3.model.Comuna;
 import MS3.MS3.service.ComunaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,7 +45,19 @@ public class ComunaController {
             responseCode = "200",
             description  = "Lista de comunas obtenida exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ComunaDTO.class))
+                           schema = @Schema(implementation = ComunaDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "_embedded": {
+                "comunaDTOList": [{
+                  "idComuna": 1,
+                  "nombreComuna": "Providencia",
+                  "region": "Región Metropolitana",
+                  "nombreBibliotecas": ["Biblioteca Central", "Biblioteca Sur"]
+                }]
+              }
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "204",
@@ -102,7 +115,15 @@ public class ComunaController {
             responseCode = "201",
             description  = "Comuna creada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ComunaDTO.class))
+                           schema = @Schema(implementation = ComunaDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idComuna": 5,
+              "nombreComuna": "Ñuñoa",
+              "region": "Región Metropolitana",
+              "nombreBibliotecas": []
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -132,7 +153,15 @@ public class ComunaController {
             responseCode = "200",
             description  = "Comuna editada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ComunaDTO.class))
+                           schema = @Schema(implementation = ComunaDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idComuna": 1,
+              "nombreComuna": "Providencia Actualizada",
+              "region": "Región Metropolitana",
+              "nombreBibliotecas": ["Biblioteca Central"]
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -160,7 +189,15 @@ public class ComunaController {
             responseCode = "200",
             description  = "Comuna actualizada exitosamente",
             content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ComunaDTO.class))
+                           schema = @Schema(implementation = ComunaDTO.class),
+        examples  = @ExampleObject(value = """
+            {
+              "idComuna": 1,
+              "nombreComuna": "Providencia Actualizada",
+              "region": "Región Metropolitana",
+              "nombreBibliotecas": ["Biblioteca Central"]
+            }
+        """))
         ),
         @ApiResponse(
             responseCode = "404",
@@ -185,10 +222,12 @@ public class ComunaController {
     )
     @ApiResponses({
         @ApiResponse(
-            responseCode = "200",
-            description  = "Comuna eliminada exitosamente",
-            content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Comuna eliminada con éxito"))
+            responseCode =  "200",
+            description  =  "Comuna eliminada exitosamente",
+            content      =  @Content(mediaType = "text/plain",
+                            schema = @Schema(type = "string", example = "Comuna eliminada con éxito"),
+                            examples  = @ExampleObject(value = "La comuna Providencia ha sido eliminada con exito.")
+        )
         ),
         @ApiResponse(
             responseCode = "404",
