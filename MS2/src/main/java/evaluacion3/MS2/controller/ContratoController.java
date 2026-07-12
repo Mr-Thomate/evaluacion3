@@ -1,8 +1,5 @@
 package evaluacion3.MS2.controller;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +26,6 @@ import evaluacion3.MS2.model.Contrato;
 import evaluacion3.MS2.service.ContratoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -45,77 +43,23 @@ public class ContratoController {
     @Autowired
     private ContratoModelAssembler assembler;
 
-    @Operation(
-        summary     = "Listar todos los contratos",
-        description = "Retorna la lista completa de contratos registrados en el sistema"
-    )
+    @Operation(summary = "Listar todos los contratos")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Lista de contratos obtenida exitosamente",
-            content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class),
-            examples  = @ExampleObject(value = """
-                {
-                  "_embedded": {
-                    "contratoDTOList": [{
-                      "idContrato": 1,
-                      "tipoCntrato": "Indefinido",
-                      "fechaInicio": "01-03-2023",
-                      "fechaFin": null,
-                      "sueldo": 850000,
-                      "nombreEmpleado": "Juan Pérez"
-                    }]
-                  }
-                }
-            """))
-        ),
-        @ApiResponse(
-            responseCode = "204",
-            description  = "No existen contratos registrados",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "200", description = "Éxito", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ContratoDTO.class))),
+        @ApiResponse(responseCode = "204", description = "Sin contenido", content = @Content)
     })
     @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<ContratoDTO>>> obtenerTodosContratos() {
         List<EntityModel<ContratoDTO>> contratos = contratoService.obtenerTodos().stream()
-                .map(assembler::toModel)
-                .collect(Collectors.toList());
-
+                .map(assembler::toModel).collect(Collectors.toList());
         if (contratos.isEmpty()) return ResponseEntity.noContent().build();
-
-        return ResponseEntity.ok(CollectionModel.of(
-                contratos,
-                linkTo(methodOn(ContratoController.class).obtenerTodosContratos()).withSelfRel()
-        ));
+        return ResponseEntity.ok(CollectionModel.of(contratos, linkTo(methodOn(ContratoController.class).obtenerTodosContratos()).withSelfRel()));
     }
 
-    @Operation(
-        summary     = "Obtener contrato por ID",
-        description = "Retorna los datos de un contrato específico incluyendo el nombre del empleado asociado"
-    )
+    @Operation(summary = "Obtener contrato por ID")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Contrato encontrado exitosamente",
-            content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class),
-        examples  = @ExampleObject(value = """
-            {
-              "idContrato": 1,
-              "tipoCntrato": "Indefinido",
-              "fechaInicio": "01-03-2023",
-              "fechaFin": null,
-              "sueldo": 850000,
-              "nombreEmpleado": "Juan Pérez"
-            }
-        """))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Contrato no encontrado con el ID proporcionado",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "200", description = "Éxito", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ContratoDTO.class))),
+        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
     })
     @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ContratoDTO>> obtenerPorId(@PathVariable Integer id) {
@@ -127,141 +71,63 @@ public class ContratoController {
         }
     }
 
-    @Operation(
-        summary     = "Buscar contratos por ID de empleado",
-        description = "Retorna todos los contratos asociados a un empleado específico"
-    )
+    @Operation(summary = "Buscar contratos por ID de empleado")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Contratos del empleado obtenidos exitosamente",
-            content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class))
-        ),
-        @ApiResponse(
-            responseCode = "204",
-            description  = "El empleado no tiene contratos asociados",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "200", description = "Éxito", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ContratoDTO.class))),
+        @ApiResponse(responseCode = "204", description = "Sin contenido", content = @Content)
     })
     @GetMapping(value = "/empleado/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<CollectionModel<EntityModel<ContratoDTO>>> buscarPorIdEmpleado(@PathVariable Integer id) {
         List<EntityModel<ContratoDTO>> lista = contratoService.buscarPorIdEmpleado(id).stream()
-                .map(assembler::toModel)
-                .collect(Collectors.toList());
-
+                .map(assembler::toModel).collect(Collectors.toList());
         if (lista.isEmpty()) return ResponseEntity.noContent().build();
-
-        return ResponseEntity.ok(CollectionModel.of(
-                lista,
-                linkTo(methodOn(ContratoController.class).buscarPorIdEmpleado(id)).withSelfRel()
-        ));
+        return ResponseEntity.ok(CollectionModel.of(lista, linkTo(methodOn(ContratoController.class).buscarPorIdEmpleado(id)).withSelfRel()));
     }
 
-    @Operation(
-        summary     = "Crear nuevo contrato",
-        description = "Registra un nuevo contrato en la base de datos"
-    )
+    @Operation(summary = "Crear nuevo contrato")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "201",
-            description  = "Contrato creado exitosamente",
-            content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class),
-        examples  = @ExampleObject(value = """
-            {
-              "idContrato": 3,
-              "tipoCntrato": "Plazo Fijo",
-              "fechaInicio": "01-06-2025",
-              "fechaFin": "01-06-2026",
-              "sueldo": 650000,
-              "nombreEmpleado": "Ana López"
-            }
-        """))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description  = "Datos del contrato inválidos o incompletos",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "201", description = "Creado", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ContratoDTO.class))),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content)
     })
     @PostMapping(produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ContratoDTO>> guardarContrato(@Valid @RequestBody Contrato nuevocontrato) {
         try {
             Contrato guardado = contratoService.guardar(nuevocontrato);
             ContratoDTO dtoCreado = contratoService.buscarPorId(guardado.getId());
-            return ResponseEntity
-                    .created(linkTo(methodOn(ContratoController.class).obtenerPorId(dtoCreado.getIdContrato())).toUri())
-                    .body(assembler.toModel(dtoCreado));
+            return ResponseEntity.created(linkTo(methodOn(ContratoController.class).obtenerPorId(dtoCreado.getIdContrato())).toUri()).body(assembler.toModel(dtoCreado));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @Operation(
-        summary     = "Actualizar contrato",
-        description = "Modifica los datos de un contrato existente según su ID"
-    )
+    @Operation(summary = "Actualizar contrato")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Contrato actualizado exitosamente",
-            content      = @Content(mediaType = "application/hal+json",
-                           schema = @Schema(implementation = ContratoDTO.class),
-        examples  = @ExampleObject(value = """
-            {
-              "idContrato": 1,
-              "tipoCntrato": "Indefinido",
-              "fechaInicio": "01-03-2023",
-              "fechaFin": null,
-              "sueldo": 950000,
-              "nombreEmpleado": "Juan Pérez"
-            }
-        """))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Contrato no encontrado con el ID proporcionado",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "200", description = "Actualizado", content = @Content(mediaType = "application/hal+json", schema = @Schema(implementation = ContratoDTO.class))),
+        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
     })
     @PutMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<ContratoDTO>> actualizarContrato(@PathVariable Integer id, @Valid @RequestBody Contrato contrato) {
         try {
+            contrato.setId(id);
             Contrato editado = contratoService.actualizar(id, contrato);
+            
             ContratoDTO dtoActualizado = contratoService.buscarPorId(editado.getId());
+            
             return ResponseEntity.ok(assembler.toModel(dtoActualizado));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @Operation(
-        summary     = "Eliminar contrato",
-        description = "Elimina un contrato de la base de datos según su ID"
-    )
+    @Operation(summary = "Eliminar contrato")
     @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description  = "Contrato eliminado exitosamente",
-            content      = @Content(mediaType = "text/plain",
-                           schema = @Schema(type = "string", example = "Contrato eliminado con éxito"),
-        examples  = @ExampleObject(value = "El contrato se elimino con exito.")
-        )
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description  = "Contrato no encontrado con el ID proporcionado",
-            content      = @Content
-        )
+        @ApiResponse(responseCode = "200", description = "Eliminado", content = @Content(mediaType = "text/plain")),
+        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarContrato(@PathVariable Integer id) {
         String resultado = contratoService.eliminar(id);
-        if (resultado.contains("exito")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
-        }
+        if (resultado.contains("exito")) return new ResponseEntity<>(resultado, HttpStatus.OK);
+        return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
     }
 }

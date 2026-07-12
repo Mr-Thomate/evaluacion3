@@ -276,8 +276,12 @@ public class LibroController {
     @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<LibroDTO>> editarLibro(@PathVariable Integer id, @Valid @RequestBody Libro libro) {
         try {
+            libro.setIsbn(id); 
+            
             Libro editado = libroService.guardar(libro);
+            
             LibroDTO dtoEditado = libroService.buscarPorId(editado.getIsbn());
+            
             return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

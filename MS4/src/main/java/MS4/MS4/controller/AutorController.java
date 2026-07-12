@@ -192,6 +192,7 @@ public class AutorController {
     @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<AutorDTO>> editarAutor(@PathVariable Integer id, @Valid @RequestBody Autor autor) {
         try {
+            autor.setId(id);
             Autor editado = autorService.guardar(autor);
             AutorDTO dtoEditado = autorService.buscarPorId(editado.getId());
             return ResponseEntity.ok(assembler.toModel(dtoEditado));
