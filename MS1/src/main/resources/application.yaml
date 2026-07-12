@@ -42,7 +42,7 @@ spring:
     password: ''
   jpa:
     hibernate:
-      ddl-auto: update # Permitimos que actualice localmente si es necesario
+      ddl-auto: update
 
 ---
 

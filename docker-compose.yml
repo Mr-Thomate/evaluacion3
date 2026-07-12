@@ -1,128 +1,111 @@
 version: '3.8'
 
 services:
-  mysql-db:
-    image: mysql:8.0
-    container_name: mysql-biblioteca
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+  mariadb-db:
+    image: mariadb:10.11
+    container_name: mariadb-db
     ports:
       - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: biblioteca_dev
     networks:
-      - biblioteca-network
+      - network-biblioteca
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 20
 
   eureka-server:
     build: ./eureka
     container_name: eureka-server
     ports:
       - "8761:8761"
-    environment:
-      - SERVER_PORT=8761
     networks:
-      - biblioteca-network
-
-  ms1-clientes:
-    build: ./MS1
-    container_name: ms1
-    ports:
-      - "8081:8081"
-    environment:
-      - SERVER_PORT=8081
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/biblioteca_MS1_dev?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - biblioteca-network
-
-  ms2-empleados:
-    build: ./MS2
-    container_name: ms2
-    ports:
-      - "8082:8082"
-    environment:
-      - SERVER_PORT=8082
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/biblioteca_MS2_dev?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - biblioteca-network
-
-  ms3-bibliotecas:
-    build: ./MS3
-    container_name: ms3
-    ports:
-      - "8083:8083"
-    environment:
-      - SERVER_PORT=8083
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/biblioteca_MS3_dev?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - biblioteca-network
-
-  ms4-libros:
-    build: ./MS4
-    container_name: ms4
-    ports:
-      - "8084:8084"
-    environment:
-      - SERVER_PORT=8084
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/biblioteca_MS4_dev?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      mysql-db:
-        condition: service_healthy
-      eureka-server:
-        condition: service_started
-    networks:
-      - biblioteca-network
+      - network-biblioteca
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   api-gateway:
     build: ./gateway
-    container_name: gateway
+    container_name: api-gateway
     ports:
       - "8080:8080"
     environment:
-      - SERVER_PORT=8080
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    depends_on:
-      - eureka-server
-      - ms1-clientes
-      - ms2-empleados
-      - ms3-bibliotecas
-      - ms4-libros
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_PROFILES_ACTIVE: dev
     networks:
-      - biblioteca-network
+      - network-biblioteca
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  ms1-clientes:
+    build: ./MS1
+    container_name: ms1-clientes
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      DATABASE_HOST: mariadb-db
+    networks:
+      - network-biblioteca
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  ms2-empleados:
+    build: ./MS2
+    container_name: ms2-empleados
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      DATABASE_HOST: mariadb-db
+    networks:
+      - network-biblioteca
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  ms3-bibliotecas:
+    build: ./MS3
+    container_name: ms3-bibliotecas
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      DATABASE_HOST: mariadb-db
+    networks:
+      - network-biblioteca
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+
+  ms4-libros:
+    build: ./MS4
+    container_name: ms4-libros
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      DATABASE_HOST: mariadb-db
+    networks:
+      - network-biblioteca
+    depends_on:
+      mariadb-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
 
 networks:
-  biblioteca-network:
+  network-biblioteca:
     driver: bridge
