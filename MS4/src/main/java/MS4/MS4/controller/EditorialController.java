@@ -193,7 +193,9 @@ public class EditorialController {
     @PatchMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
     public ResponseEntity<EntityModel<EditorialDTO>> editarEditorial(@PathVariable Integer id, @Valid @RequestBody Editorial editorial) {
         try {
+            editorial.setId(id);
             Editorial editada = editorialService.guardar(editorial);
+            
             EditorialDTO dtoEditado = editorialService.buscarPorId(editada.getId());
             return ResponseEntity.ok(assembler.toModel(dtoEditado));
         } catch (RuntimeException e) {
