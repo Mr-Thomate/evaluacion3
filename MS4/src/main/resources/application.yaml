@@ -71,7 +71,7 @@ spring:
       on-profile: test
   datasource:
     username: root
-    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS4_test?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS4_test?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
@@ -86,7 +86,7 @@ spring:
       on-profile: prod
   datasource:
     username: root
-    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS4_prod?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS4_prod?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
