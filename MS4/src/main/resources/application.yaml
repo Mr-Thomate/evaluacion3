@@ -38,7 +38,7 @@ spring:
 springdoc:
   api-docs:
     path: /libros/api-docs
-  packages-to-scan: com.libros
+  packages-to-scan: com.MS4.MS4.controller
 
 eureka:
   client:
