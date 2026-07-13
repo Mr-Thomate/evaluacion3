@@ -1,5 +1,6 @@
 server:
   port: 0
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -19,15 +20,34 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+  
+  profiles:
+    active: dev
+
+  mvc:
+    cors:
+      mappings:
+        "/**":
+          allowed-origins-patterns: "*"
+          allowed-methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+          allowed-headers: "*"
+          exposed-headers: "*"
+          allow-credentials: false
+          max-age: 3600
+  
 
 springdoc:
   api-docs:
     path: /clientes/api-docs
+  packages-to-scan: com.MS1.MS1.controller
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
   
 ---
 

@@ -46,7 +46,7 @@ eureka:
 springdoc:
   api-docs:
     path: /bibliotecas/api-docs
-  packages-to-scan: com.bibliotecas
+  packages-to-scan: com.MS3.MS3.controller
 
 ---
 
