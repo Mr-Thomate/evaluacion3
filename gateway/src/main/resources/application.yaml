@@ -1,5 +1,6 @@
 server:
   port: 8080
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -9,6 +10,16 @@ spring:
     gateway:
       server:
         webmvc:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowed-origin-patterns: "*"
+                allowed-methods: "*"
+                allowed-headers: "*"
+                exposed-headers: "*"
+                allow-credentials: false
+                max-age: 3600
+
           routes:
             # Separacion al MS1
 
@@ -72,3 +83,44 @@ spring:
               uri: lb://libros
               predicates:
               - Path=/api/v1/editoriales/**, /editoriales/api-docs/**
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+    urls:
+    - name: Microservicio Clientes
+      url: /clientes/api-docs
+    - name: Microservicio Préstamos
+      url: /prestamos/api-docs
+
+    - name: Microservicio Empleados
+      url: /empleados/api-docs
+    - name: Microservicio Contratos
+      url: /contratos/api-docs
+
+    - name: Microservicio Regiones
+      url: /regiones/api-docs
+    - name: Microservicio Comunas
+      url: /comunas/api-docs
+    - name: Microservicio Bibliotecas
+      url: /bibliotecas/api-docs
+
+    - name: Microservicio Libros
+      url: /libros/api-docs
+    - name: Microservicio Categorías
+      url: /categorias/api-docs
+    - name: Microservicio Autores
+      url: /autores/api-docs
+    - name: Microservicio Editoriales
+      url: /editoriales/api-docs
+      
+    disable-swagger-default-url: true
+    display-request-duration: true
+  api-docs:
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: false
