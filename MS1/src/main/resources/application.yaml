@@ -7,7 +7,7 @@ spring:
     name: clientes
   
   datasource:
-    url: jdbc:mysql://localhost:3306/biblioteca_MS1?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS1?createDatabaseIfNotExist=true
     username: root
     password: 
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -57,7 +57,7 @@ spring:
       on-profile: dev
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_MS1_dev?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS1_dev?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
@@ -72,7 +72,7 @@ spring:
       on-profile: test
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_MS1_test?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS1_test?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
@@ -87,7 +87,7 @@ spring:
       on-profile: prod
   datasource:
     username: root
-    url: jdbc:mysql://localhost:3306/biblioteca_MS1_prod?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/biblioteca_MS1_prod?createDatabaseIfNotExist=true
     driverClassName: com.mysql.cj.jdbc.Driver
     password: ''
   jpa:
